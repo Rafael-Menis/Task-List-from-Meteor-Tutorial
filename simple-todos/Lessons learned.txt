@@ -1,0 +1,20 @@
+Lesson in implementing running on android in windows.
+
+Step 1- you need to have the android sdk, most likely through android studio.
+Step 2- you need to have jdk 8, not 10
+Step 3- you need to update the path variables. An important point here is that JAVA_HOME should be C:\Program Files\Java\jdk1.8.whatever
+NOT with /bin after that. (thanks to https://stackoverflow.com/a/1184098 for that)! If you have C:\Program Files\Java\jdk1.8.whatever\bin as your JAVA_HOME path, it will break meteor run android by saying you don't have a virtual machine.
+If you go to C:\Users\@USERNAME\AppData\Local\Android\Sdk\tools\bin in command line or powershell
+and try to run avdmanager.bat, it will say "error java_home is set to an invalid directory".
+Step 4- once you've done all these things, cordova will still crash with a horrendous error chain
+partway through building your app, of which the only relevant part is "TypeError: Cannot read property 'semver' of null".
+By default, the version of cordova that meteor builds with version 1.7 of meteor really doesn't
+like uncertainty. If there are any versions of android other than the exact one that it wants
+for the virtual image, it crashes (credit to https://stackoverflow.com/a/47947319). You can fix this by
+"
+    find the path <project_root>/platforms/android/cordova/lib/emulator.js
+    find the line avd.target = 'Android ' + level.semver + ' (API level ' + api_level + ')';
+    replace it with avd.target = 'Android ' + (level ? level.semver : '') + ' (API level ' + api_level + ')';
+" (credit to https://stackoverflow.com/a/48184965).
+For a meteor build, you're looking for .meteor/local/cordova-build/platforms/android/cordova/lib/emulator.js.
+Once you've done that, you can finally build your app in android on windows by using meteor run android.
